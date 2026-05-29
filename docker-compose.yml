@@ -1,0 +1,71 @@
+version: '3.8'
+
+services:
+  # PHP + Apache
+  web:
+    image: php:8.2-apache
+    container_name: budget_web
+    ports:
+      - "80:80"
+    volumes:
+      - .:/var/www/html/budget_app
+      - ./docker/apache.conf:/etc/apache2/sites-available/000-default.conf
+    environment:
+      - DB_HOST=db
+      - DB_USER=budget_user
+      - DB_PASS=budget_password
+      - DB_NAME=budget_db
+    depends_on:
+      - db
+    networks:
+      - budget_network
+    command: |
+      bash -c "
+      a2enmod rewrite &&
+      a2enmod headers &&
+      apache2-foreground
+      "
+
+  # MySQL
+  db:
+    image: mysql:8.0
+    container_name: budget_db
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: budget_db
+      MYSQL_USER: budget_user
+      MYSQL_PASSWORD: budget_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+      - db_data:/var/lib/mysql
+    networks:
+      - budget_network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # PHPMyAdmin (optionnel)
+  phpmyadmin:
+    image: phpmyadmin
+    container_name: budget_phpmyadmin
+    ports:
+      - "8080:80"
+    environment:
+      PMA_HOST: db
+      PMA_USER: budget_user
+      PMA_PASSWORD: budget_password
+    depends_on:
+      - db
+    networks:
+      - budget_network
+
+volumes:
+  db_data:
+
+networks:
+  budget_network:
+    driver: bridge

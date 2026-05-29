@@ -1,0 +1,4 @@
+{
+  env: { OPENCODE_API_KEY: "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" },
+  agents: { defaults: { model: { primary: "opencode/claude-opus-4-6" } } },
+}

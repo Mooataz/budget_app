@@ -1,0 +1,35 @@
+# .gitignore
+
+# Configuration
+config/config.php
+.env
+.env.local
+
+# Database
+*.sql.bak
+database/backups/
+
+# PHP
+*.log
+vendor/
+composer.lock
+
+# IDE
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# OS
+.DS_Store
+Thumbs.db
+.gitkeep
+
+# Uploads
+public/uploads/
+public/cache/
+
+# Temp files
+*.tmp
+*.temp
+~*
