@@ -21,14 +21,14 @@ require_once VIEWS . '/partials/header.php';
     <div class="kpi-icon"><i data-lucide="trending-up"></i></div>
     <div class="kpi-body">
       <span class="kpi-label">Revenus totaux</span>
-      <span class="kpi-value"><?= number_format($stats['rev'],0,',',' ') ?> DA</span>
+      <span class="kpi-value"><?= number_format($stats['rev'],0,',',' ') ?> DT</span>
     </div>
   </div>
   <div class="kpi-card kpi-red">
     <div class="kpi-icon"><i data-lucide="trending-down"></i></div>
     <div class="kpi-body">
       <span class="kpi-label">Dépenses totales</span>
-      <span class="kpi-value"><?= number_format($stats['dep'],0,',',' ') ?> DA</span>
+      <span class="kpi-value"><?= number_format($stats['dep'],0,',',' ') ?> DT</span>
     </div>
   </div>
   <div class="kpi-card kpi-purple">
@@ -111,7 +111,7 @@ require_once VIEWS . '/partials/header.php';
             <td><?= $user['derniere_connexion'] ? date('d/m/Y H:i', strtotime($user['derniere_connexion'])) : '—' ?></td>
             <td class="actions">
               <?php if ($user['statut']==='ACTIF'): ?>
-                <button class="btn-icon" onclick="suspendreCompte(<?= $user['id'] ?>, '<?= htmlspecialchars($user['prenom'].' '.$user['nom']) ?>')">
+                <button class="btn-icon" onclick="suspendreCompte(<?= $user['id'] ?>, <?= json_encode($user['prenom'].' '.$user['nom'], JSON_HEX_APOS) ?>)">
                   <i data-lucide="pause-circle"></i>
                 </button>
               <?php else: ?>
@@ -119,7 +119,7 @@ require_once VIEWS . '/partials/header.php';
                   <i data-lucide="play-circle"></i>
                 </button>
               <?php endif; ?>
-              <button class="btn-icon btn-icon-red" onclick="supprimerCompte(<?= $user['id'] ?>, '<?= htmlspecialchars($user['prenom'].' '.$user['nom']) ?>')">
+              <button class="btn-icon btn-icon-red" onclick="supprimerCompte(<?= $user['id'] ?>, <?= json_encode($user['prenom'].' '.$user['nom'], JSON_HEX_APOS) ?>)">
                 <i data-lucide="trash-2"></i>
               </button>
             </td>

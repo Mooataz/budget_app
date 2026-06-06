@@ -6,8 +6,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title><?= $pageTitle ?? 'BudgetCollab' ?></title>
   <link rel="stylesheet" href="<?= BASE_URL ?>/css/app.css">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+  <?php if (isset($needChart) && $needChart): ?>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"
+    integrity="sha256-1Bq69QNMzW5qSxcJuQp4iV5LFQ7B3R+RUoj/eD0kPE="
+    crossorigin="anonymous"></script>
+  <?php endif; ?>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"
+    integrity="sha384-z0N6Ae6jMqR1B5DM9Q3EXd1hR3QnC6OBQ4F1aBpsJkXAnMpCxQcmI+YZ2VjS+W"
+    crossorigin="anonymous"></script>
 </head>
 <body class="<?= Session::isLogged() ? 'has-sidebar' : '' ?>">
 
@@ -15,7 +21,7 @@
 <!-- ── SIDEBAR ── -->
 <aside class="sidebar" id="sidebar">
   <div class="sidebar-header">
-    <span class="logo">💰 BudgetCollab</span>
+    <span class="logo">Budget Collaborative</span>
     <button class="sidebar-toggle" id="sidebarToggle"><i data-lucide="menu"></i></button>
   </div>
 
@@ -45,8 +51,12 @@
   <div class="sidebar-footer">
     <a href="<?= BASE_URL ?>/profil" class="nav-item">
       <i data-lucide="user"></i><span><?= htmlspecialchars(Session::get('user_nom')) ?></span></a>
-    <a href="<?= BASE_URL ?>/logout" class="nav-item nav-logout">
-      <i data-lucide="log-out"></i><span>Déconnexion</span></a>
+    <form method="POST" action="<?= BASE_URL ?>/logout" style="display:contents">
+      <input type="hidden" name="csrf_token" value="<?= Session::generateCsrf() ?>">
+      <button type="submit" class="nav-item nav-logout" style="width:100%;text-align:left;background:none;border:none;cursor:pointer">
+        <i data-lucide="log-out"></i><span>Déconnexion</span>
+      </button>
+    </form>
   </div>
 </aside>
 <?php endif; ?>
@@ -76,10 +86,8 @@
 </header>
 <?php endif; ?>
 
-<!-- Flash messages -->
-<?php foreach (Session::getFlash() as $flash): ?>
-  <div class="flash flash-<?= $flash['type'] ?>">
-    <?= htmlspecialchars($flash['message']) ?>
-    <button onclick="this.parentElement.remove()">✕</button>
-  </div>
-<?php endforeach; ?>
+<!-- Toast container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- Flash messages (hydrated as toats via JS) -->
+<div id="flashData" style="display:none"><?= htmlspecialchars(json_encode(Session::getFlash()), ENT_QUOTES, 'UTF-8') ?></div>

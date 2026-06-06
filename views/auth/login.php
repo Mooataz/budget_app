@@ -6,7 +6,7 @@ $csrf = Session::generateCsrf();
 
 <div class="auth-page">
   <div class="auth-card">
-    <div class="auth-logo">💰 BudgetCollab</div>
+    <div class="auth-logo"> BudgetCollab</div>
     <h1 class="auth-title">Connexion</h1>
     <p class="auth-sub">Gérez votre budget en toute simplicité</p>
 

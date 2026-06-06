@@ -26,15 +26,15 @@ require_once VIEWS . '/partials/header.php';
   <div class="summary-row">
     <div class="summary-stat">
       <span class="stat-label">Plafond global</span>
-      <span class="stat-value"><?= number_format($budget['plafond_global'],2,',',' ') ?> DA</span>
+      <span class="stat-value"><?= number_format($budget['plafond_global'],2,',',' ') ?> DT</span>
     </div>
     <div class="summary-stat">
       <span class="stat-label">Consommé</span>
-      <span class="stat-value" style="color: var(--red)"><?= number_format($budget['montant_consomme'],2,',',' ') ?> DA</span>
+      <span class="stat-value" style="color: var(--red)"><?= number_format($budget['montant_consomme'],2,',',' ') ?> DT</span>
     </div>
     <div class="summary-stat">
       <span class="stat-label">Solde disponible</span>
-      <span class="stat-value" style="color: var(--green)"><?= number_format($budget['plafond_global'] - $budget['montant_consomme'],2,',',' ') ?> DA</span>
+      <span class="stat-value" style="color: var(--green)"><?= number_format($budget['plafond_global'] - $budget['montant_consomme'],2,',',' ') ?> DT</span>
     </div>
     <div class="summary-stat">
       <span class="stat-label">Taux d'utilisation</span>
@@ -87,7 +87,7 @@ require_once VIEWS . '/partials/header.php';
             <td><?= htmlspecialchars($tx['categorie_nom']) ?></td>
             <td><span class="badge badge-<?= $tx['type']==='REVENU'?'green':'red' ?>"><?= $tx['type'] ?></span></td>
             <td class="tx-amount <?= $tx['type']==='REVENU'?'tx-pos':'tx-neg' ?>">
-              <?= $tx['type']==='REVENU'?'+':'-' ?><?= number_format($tx['montant'],2,',',' ') ?> DA
+              <?= $tx['type']==='REVENU'?'+':'-' ?><?= number_format($tx['montant'],2,',',' ') ?> DT
             </td>
           </tr>
         <?php endforeach; ?>
@@ -106,13 +106,13 @@ require_once VIEWS . '/partials/header.php';
       <div class="plafond-card">
         <div class="plafond-header">
           <h4><?= htmlspecialchars($pc['nom']) ?></h4>
-          <span class="plafond-max"><?= number_format($pc['plafond'],2,',',' ') ?> DA</span>
+          <span class="plafond-max"><?= number_format($pc['plafond'],2,',',' ') ?> DT</span>
         </div>
         <div class="budget-progress-bar">
           <div class="progress-fill progress-<?= $pc['montant_consomme'] >= $pc['plafond']?'red':'green' ?>"
                style="width:<?= min(($pc['montant_consomme']/$pc['plafond'])*100,100) ?>%"></div>
         </div>
-        <span class="plafond-consumed"><?= number_format($pc['montant_consomme'],2,',',' ') ?> / <?= number_format($pc['plafond'],2,',',' ') ?> DA</span>
+        <span class="plafond-consumed"><?= number_format($pc['montant_consomme'],2,',',' ') ?> / <?= number_format($pc['plafond'],2,',',' ') ?> DT</span>
       </div>
     <?php endforeach; ?>
     </div>
@@ -140,7 +140,7 @@ require_once VIEWS . '/partials/header.php';
             </span>
           </div>
           <?php if ($m['role_budget'] !== 'PROPRIETAIRE'): ?>
-          <button class="btn-icon btn-icon-red" onclick="removeMembre(<?= $m['user_id'] ?>)">
+          <button class="btn-icon btn-icon-red" onclick="removeMembre(<?= $budget['id'] ?>, <?= $m['user_id'] ?>)">
             <i data-lucide="trash-2"></i>
           </button>
           <?php endif; ?>
@@ -182,14 +182,15 @@ require_once VIEWS . '/partials/header.php';
       <h3><i data-lucide="edit-2"></i> Modifier le budget</h3>
       <button class="modal-close" onclick="closeModal('modalEditBudget')"><i data-lucide="x"></i></button>
     </div>
-    <form id="formEditBudget" class="modal-body">
+    <form id="formEditBudget" class="modal-body" method="POST" action="<?= BASE_URL ?>/budgets/<?= $budget['id'] ?>/update">
+      <input type="hidden" name="csrf_token" value="<?= Session::generateCsrf() ?>">
       <div class="field-group">
         <label>Nom</label>
         <input type="text" name="nom" value="<?= htmlspecialchars($budget['nom']) ?>" required>
       </div>
       <div class="field-row">
         <div class="field-group">
-          <label>Plafond global (DA)</label>
+          <label>Plafond global (DT)</label>
           <input type="number" name="plafond_global" step="0.01" value="<?= $budget['plafond_global'] ?>" required>
         </div>
         <div class="field-group">

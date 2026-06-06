@@ -22,7 +22,7 @@
 
       <div class="field-row">
         <div class="field-group">
-          <label>Montant (DA)</label>
+          <label>Montant (DT)</label>
           <input type="number" name="montant" step="0.01" min="0.01" placeholder="0.00" required>
         </div>
         <div class="field-group">
@@ -48,9 +48,12 @@
           <select name="budget_id" id="selectBudget" required>
             <option value="">— Choisir —</option>
             <?php foreach ($data['budgets'] ?? $budgets ?? [] as $b): ?>
-              <option value="<?= $b['id'] ?>"><?= htmlspecialchars($b['nom']) ?></option>
+              <option value="<?= $b['id'] ?>" data-solde="<?= (float)$b['plafond_global'] - (float)$b['montant_consomme'] ?>">
+                <?= htmlspecialchars($b['nom']) ?> (<?= number_format((float)$b['plafond_global'] - (float)$b['montant_consomme'], 0, ',', ' ') ?> DT)
+              </option>
             <?php endforeach; ?>
           </select>
+          <small id="budgetSoldeInfo" class="field-hint"></small>
         </div>
       </div>
 

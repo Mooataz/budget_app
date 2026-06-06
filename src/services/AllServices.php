@@ -29,13 +29,17 @@ class AuthService {
         if (!$user || $user['statut'] !== 'ACTIF') {
             return ['ok' => false, 'message' => 'Identifiants incorrects ou compte inactif.'];
         }
+        // Verrouillage après 5 échecs consécutifs
+        if ((int)$user['echecs_connexion'] >= 5) {
+            return ['ok' => false, 'message' => 'Compte temporairement verrouillé. Réessayez plus tard.'];
+        }
         if (!password_verify($mdp, $user['mdp_hash'])) {
             $this->userDao->incrementEchecs((int)$user['id']);
             return ['ok' => false, 'message' => 'Identifiants incorrects.'];
         }
         $this->userDao->updateLastLogin((int)$user['id']);
+        Session::regenerate();
 
-        // Créer la session
         Session::set('user_id',    (int)$user['id']);
         Session::set('user_role',  $user['role']);
         Session::set('user_nom',   $user['prenom'] . ' ' . $user['nom']);
@@ -101,6 +105,10 @@ class BudgetService {
         return ['ok' => true, 'budget_id' => $id];
     }
 
+    public function getBudget(int $budgetId): ?array {
+        return $this->budgetDao->findById($budgetId);
+    }
+
     /** Recalculer montant consommé + déclencher alertes */
     public function recalculer(int $budgetId): float {
         $depenses = $this->txDao->sumByBudget($budgetId, 'DEPENSE');
@@ -117,12 +125,17 @@ class BudgetService {
 
     public function getForUser(int $userId): array {
         $budgets = $this->budgetDao->findByUser($userId);
+        if (empty($budgets)) return [];
+
+        $budgetIds = array_map(fn($b) => (int)$b['id'], $budgets);
+        $membresGrouped = $this->membreDao->findByBudgets($budgetIds);
+
         foreach ($budgets as &$b) {
             $b['taux'] = $b['plafond_global'] > 0
                 ? round(($b['montant_consomme'] / $b['plafond_global']) * 100, 1)
                 : 0;
             $b['solde']  = $b['plafond_global'] - $b['montant_consomme'];
-            $b['membres'] = $this->membreDao->findByBudget((int)$b['id']);
+            $b['membres'] = $membresGrouped[(int)$b['id']] ?? [];
         }
         return $budgets;
     }
@@ -172,6 +185,19 @@ class TransactionService {
     }
 
     public function ajouter(int $userId, array $dto): array {
+        // Vérifier que la dépense ne dépasse pas le solde restant du budget
+        if ($dto['type'] === 'DEPENSE') {
+            $budget = $this->budgetService->getBudget((int)$dto['budget_id']);
+            if ($budget) {
+                $solde = (float)$budget['plafond_global'] - (float)$budget['montant_consomme'];
+                if ((float)$dto['montant'] > $solde) {
+                    return [
+                        'ok' => false,
+                        'message' => 'Dépense refusée : solde budgétaire insuffisant (' . number_format($solde, 2, ',', ' ') . ' DT disponible).'
+                    ];
+                }
+            }
+        }
         $id   = $this->txDao->save(
             $userId,
             (int)$dto['budget_id'],
@@ -189,6 +215,21 @@ class TransactionService {
         $tx = $this->txDao->findById($txId);
         if (!$tx || (int)$tx['user_id'] !== $userId) {
             return ['ok' => false, 'message' => 'Transaction introuvable.'];
+        }
+        // Vérifier la limite si c'est une dépense
+        if ($dto['type'] === 'DEPENSE') {
+            $budget = $this->budgetService->getBudget((int)$tx['budget_id']);
+            if ($budget) {
+                $ancienMontant = (float)$tx['montant'];
+                $soldeActuel = (float)$budget['plafond_global'] - (float)$budget['montant_consomme'];
+                $soldeReel = $soldeActuel + $ancienMontant; // l'ancienne dépense est remboursée
+                if ((float)$dto['montant'] > $soldeReel) {
+                    return [
+                        'ok' => false,
+                        'message' => 'Dépense refusée : solde budgétaire insuffisant (' . number_format($soldeReel, 2, ',', ' ') . ' DT disponible).'
+                    ];
+                }
+            }
         }
         $this->txDao->update($txId, (int)$dto['categorie_id'], $dto['type'], (float)$dto['montant'], $dto['date_op'], $dto['description'] ?? '');
         $taux = $this->budgetService->recalculer((int)$tx['budget_id']);
@@ -321,12 +362,15 @@ class AdminService {
     }
 
     public function statsGlobales(): array {
-        $db    = Database::getInstance();
-        $users = (int)$db->query('SELECT COUNT(*) FROM users WHERE role="UTILISATEUR"')->fetchColumn();
-        $txs   = (int)$db->query('SELECT COUNT(*) FROM transactions')->fetchColumn();
-        $bgets = (int)$db->query('SELECT COUNT(*) FROM budgets')->fetchColumn();
-        $rev   = (float)$db->query('SELECT COALESCE(SUM(montant),0) FROM transactions WHERE type="REVENU"')->fetchColumn();
-        $dep   = (float)$db->query('SELECT COALESCE(SUM(montant),0) FROM transactions WHERE type="DEPENSE"')->fetchColumn();
-        return compact('users','txs','bgets','rev','dep');
+        $db = Database::getInstance();
+        $stats = $db->query(
+            'SELECT
+                (SELECT COUNT(*) FROM users WHERE role="UTILISATEUR") as users,
+                (SELECT COUNT(*) FROM transactions) as txs,
+                (SELECT COUNT(*) FROM budgets) as bgets,
+                (SELECT COALESCE(SUM(montant),0) FROM transactions WHERE type="REVENU") as rev,
+                (SELECT COALESCE(SUM(montant),0) FROM transactions WHERE type="DEPENSE") as dep'
+        )->fetch();
+        return $stats ?: ['users'=>0,'txs'=>0,'bgets'=>0,'rev'=>0,'dep'=>0];
     }
 }

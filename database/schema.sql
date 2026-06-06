@@ -127,7 +127,7 @@ CREATE TABLE IF NOT EXISTS alertes (
 -- DONNÉES DE BASE (seed)
 -- ============================================================
 
--- Admin par défaut (mdp: Admin@1234)
+-- Admin par défaut (mdp: password) — À CHANGER EN PRODUCTION
 INSERT INTO users (nom, prenom, email, mdp_hash, role, statut) VALUES
 ('Admin', 'Système', 'admin@budget.local',
  '$2y$12$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uHqu4ioiK',
@@ -145,5 +145,14 @@ INSERT INTO categories (nom, icone, est_defaut, user_id) VALUES
 ('Abonnements',    'repeat',          1, NULL),
 ('Épargne',        'piggy-bank',      1, NULL),
 ('Autres',         'ellipsis',        1, NULL);
+
+-- ============================================================
+-- INDEX DE PERFORMANCE
+-- ============================================================
+CREATE INDEX idx_tx_user_date ON transactions(user_id, date_op);
+CREATE INDEX idx_tx_budget_type ON transactions(budget_id, type);
+CREATE INDEX idx_bm_user_statut ON budget_members(user_id, statut_invitation);
+CREATE INDEX idx_alertes_budget_lue ON alertes(budget_id, lue);
+CREATE INDEX idx_categories_defaut ON categories(est_defaut);
 
 SET FOREIGN_KEY_CHECKS = 1;

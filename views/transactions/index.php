@@ -49,11 +49,11 @@ require_once VIEWS . '/partials/header.php';
         </td>
         <td><?= htmlspecialchars($tx['budget_nom']) ?></td>
         <td class="tx-amount <?= $tx['type']==='REVENU'?'tx-pos':'tx-neg' ?>">
-          <?= $tx['type']==='REVENU'?'+':'-' ?><?= number_format($tx['montant'],2,',',' ') ?> DA
+          <?= $tx['type']==='REVENU'?'+':'-' ?><?= number_format($tx['montant'],2,',',' ') ?> DT
         </td>
         <td class="actions">
           <button class="btn-icon" title="Modifier"
-            onclick="editTx(<?= $tx['id'] ?>, '<?= $tx['type'] ?>',<?= $tx['montant'] ?>,'<?= $tx['date_op'] ?>','<?= addslashes($tx['description']) ?>',<?= $tx['categorie_id'] ?>,<?= $tx['budget_id'] ?>)">
+            onclick="editTx(<?= $tx['id'] ?>, '<?= $tx['type'] ?>',<?= $tx['montant'] ?>,'<?= $tx['date_op'] ?>',<?= json_encode($tx['description'], JSON_HEX_APOS | JSON_HEX_QUOT) ?>,<?= $tx['categorie_id'] ?>,<?= $tx['budget_id'] ?>)">
             <i data-lucide="edit-2"></i>
           </button>
           <button class="btn-icon btn-icon-red" title="Supprimer"
@@ -92,7 +92,7 @@ require_once VIEWS . '/partials/header.php';
       </div>
       <div class="field-row">
         <div class="field-group">
-          <label>Montant (DA)</label>
+          <label>Montant (DT)</label>
           <input type="number" id="editMontant" name="montant" step="0.01" min="0.01" required>
         </div>
         <div class="field-group">
@@ -112,6 +112,7 @@ require_once VIEWS . '/partials/header.php';
           <?php endforeach; ?>
         </select>
       </div>
+      <div class="field-error" id="editTxError"></div>
       <div class="modal-footer">
         <button type="button" class="btn btn-outline" onclick="closeModal('modalEditTx')">Annuler</button>
         <button type="submit" class="btn btn-primary"><i data-lucide="check"></i> Enregistrer</button>

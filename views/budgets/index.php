@@ -35,16 +35,16 @@ require_once VIEWS . '/partials/header.php';
     <!-- Barre de progression -->
     <div class="budget-progress-section">
       <div class="progress-header">
-        <span><?= number_format($b['montant_consomme'],0,',',' ') ?> DA</span>
+        <span><?= number_format($b['montant_consomme'],0,',',' ') ?> DT</span>
         <span class="taux-badge taux-<?= $b['taux']>=100?'red':($b['taux']>=80?'orange':'green') ?>"><?= $b['taux'] ?>%</span>
-        <span><?= number_format($b['plafond_global'],0,',',' ') ?> DA</span>
+        <span><?= number_format($b['plafond_global'],0,',',' ') ?> DT</span>
       </div>
       <div class="budget-progress-bar">
         <div class="progress-fill progress-<?= $b['taux']>=100?'red':($b['taux']>=80?'orange':'green') ?>"
              style="width:<?= min($b['taux'],100) ?>%"></div>
       </div>
       <div class="progress-footer">
-        <span>Solde disponible : <strong><?= number_format($b['solde'],0,',',' ') ?> DA</strong></span>
+        <span>Solde disponible : <strong><?= number_format($b['solde'],0,',',' ') ?> DT</strong></span>
         <span class="indicator indicator-<?= $b['taux']>=100?'red':($b['taux']>=80?'orange':'green') ?>">
           <?= $b['taux']>=100?'⛔ Dépassé':($b['taux']>=80?'⚠️ Proche limite':'✅ Maîtrisé') ?>
         </span>
@@ -98,7 +98,7 @@ require_once VIEWS . '/partials/header.php';
           <input type="text" name="nom" placeholder="Ex: Budget ménage" required>
         </div>
         <div class="field-group">
-          <label>Plafond global (DA)</label>
+          <label>Plafond global (DT)</label>
           <input type="number" name="plafond_global" step="0.01" min="1" placeholder="50000" required>
         </div>
       </div>

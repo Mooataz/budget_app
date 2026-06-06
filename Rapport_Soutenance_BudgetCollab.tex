@@ -1,0 +1,385 @@
+% ============================================================
+% Rapport de Soutenance — BudgetCollab
+% Compilation : pdflatex Rapport_Soutenance_BudgetCollab.tex (x2)
+% ============================================================
+\documentclass[12pt,a4paper,twoside]{report}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{csquotes}
+\usepackage{microtype}
+\usepackage{lmodern}
+\usepackage{textcomp}
+
+\usepackage[top=2.5cm,bottom=2.5cm,left=3cm,right=2.5cm]{geometry}
+\usepackage{fancyhdr}
+\usepackage{setspace}
+\onehalfspacing
+
+\usepackage{xcolor}
+\definecolor{primaryblue}{HTML}{4f9eff}
+\definecolor{accentgreen}{HTML}{3dd68c}
+\definecolor{accentred}{HTML}{f06464}
+\definecolor{accentorange}{HTML}{f5a623}
+\definecolor{textsecondary}{HTML}{8a93b0}
+\definecolor{surfacebg}{HTML}{151820}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[LE,RO]{\small\textcolor{textsecondary}{BudgetCollab}}
+\fancyhead[RE,LO]{\small\textcolor{textsecondary}{\leftmark}}
+\fancyfoot[CE,CO]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0pt}
+
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{tabularx}
+\usepackage{array}
+\newcolumntype{L}{>{\raggedright\arraybackslash}X}
+\newcolumntype{C}{>{\centering\arraybackslash}X}
+
+\usepackage{graphicx}
+\usepackage{tikz}
+\usetikzlibrary{shapes,arrows,positioning,fit}
+
+\usepackage{tcolorbox}
+\tcbuselibrary{most}
+\newtcolorbox{infobox}[2][]{colback=primaryblue!5,colframe=primaryblue,fonttitle=\bfseries,title=#2,arc=4pt,#1}
+\newtcolorbox{alertbox}[2][]{colback=accentorange!5,colframe=accentorange,fonttitle=\bfseries,title=#2,arc=4pt,#1}
+\newtcolorbox{successbox}[2][]{colback=accentgreen!5,colframe=accentgreen,fonttitle=\bfseries,title=#2,arc=4pt,#1}
+
+\usepackage{enumitem}
+\setlist{nolistsep,leftmargin=1.5em}
+
+\usepackage{hyperref}
+\hypersetup{colorlinks=true,linkcolor=primaryblue,urlcolor=primaryblue,citecolor=primaryblue}
+
+\usepackage{listings}
+\lstdefinestyle{phpstyle}{
+  language=PHP,basicstyle=\small\ttfamily,
+  keywordstyle=\color{primaryblue},
+  stringstyle=\color{accentgreen},
+  commentstyle=\color{textsecondary}\itshape,
+  numbers=left,numberstyle=\tiny\color{textsecondary},
+  frame=single,breaklines=true,
+  backgroundcolor=\color{gray!5},rulecolor=\color{gray!30}
+}
+
+\usepackage{titlesec}
+\titleformat{\chapter}[hang]{\Huge\bfseries\color{primaryblue}}{}{0pt}{}
+\titleformat{\section}[hang]{\Large\bfseries\color{primaryblue!80!black}}{}{0pt}{}
+\titleformat{\subsection}[hang]{\large\bfseries\color{primaryblue!60!black}}{}{0pt}{}
+
+\usepackage{lastpage}
+\usepackage{float}
+\usepackage{caption}
+
+\begin{document}
+
+% ── Page de garde ──
+\begin{titlepage}
+  \centering\vspace*{2cm}
+  {\Huge\bfseries\color{primaryblue} BudgetCollab}\\[0.5cm]
+  {\Large Application Collaborative de Gestion de Budget}\\[1.5cm]
+  \rule{0.6\textwidth}{1pt}\\[1cm]
+  {\Large\textbf{Rapport de Soutenance}}\\[1cm]
+  \begin{minipage}{0.6\textwidth}
+    \centering
+    \begin{tabular}{rl}
+      \textbf{Présenté par :} & Hamdi Boutiti et Jlassi Moaataz \\
+      \textbf{Date :} & Mai 2026 \\
+      \textbf{Établissement :} & iTeam university \\
+     % \textbf{Formation :} & [Intitulé de la formation] \\
+      \textbf{Encadrant :} & Saffar Hela \\
+    \end{tabular}
+  \end{minipage}\\[2cm]
+  \rule{0.6\textwidth}{1pt}\\[1cm]
+  \vfill
+  {\small\textcolor{textsecondary}{\texttt{https://github.com/Mooataz/budget\_app}}}
+\end{titlepage}
+
+\tableofcontents
+\thispagestyle{empty}
+\newpage
+
+\chapter{Introduction}
+
+\section{Contexte}
+
+Dans un environnement économique où la maîtrise des finances personnelles et collectives est devenue une nécessité, la gestion budgétaire occupe une place centrale dans la vie quotidienne des individus et des groupes. Les outils traditionnels — feuilles de calcul, relevés bancaires papier — présentent des limites importantes en termes de collaboration, de réactivité et de visibilité. Les solutions du marché sont souvent trop coûteuses, trop complexes, ou non adaptées aux besoins d'une famille, de colocataires ou d'une petite équipe.
+
+C'est dans ce contexte qu'est né \textbf{BudgetCollab} : une application web collaborative de gestion de budget, conçue pour permettre à plusieurs utilisateurs de gérer ensemble leurs finances de manière simple, sécurisée et accessible sur un réseau local.
+
+\section{Problématique}
+
+La gestion budgétaire collective pose plusieurs défis spécifiques :
+\begin{itemize}
+  \item Comment garantir que chaque membre du groupe visualise l'état des finances en temps réel~?
+  \item Comment s'assurer que les alertes de dépassement soient transmises efficacement à tous~?
+  \item Comment gérer les permissions et les rôles dans un environnement collaboratif sécurisé~?
+\end{itemize}
+
+Les applications bancaires classiques n'offrent pas de vue consolidée collaborative, et les tableurs partagés manquent d'automatisation et de sécurité.
+
+\section{Objectifs}
+
+\begin{enumerate}
+  \item Développer une application web sécurisée pour la gestion collaborative de budgets
+  \item Permettre le suivi en temps réel des transactions et des soldes
+  \item Offrir un système d'alertes automatiques aux seuils de 80\,\% et 100\,\%
+  \item Faciliter la collaboration via invitations et budgets partagés
+  \item Proposer une interface intuitive avec graphiques et visualisations
+  \item Assurer un niveau de sécurité conforme aux standards du web
+\end{enumerate}
+
+\chapter{Analyse des besoins}
+
+\section{Besoins fonctionnels}
+
+\begin{infobox}{Module d'authentification}
+  Création de compte sécurisée, connexion, déconnexion, gestion du profil et changement de mot de passe. Validation des comptes par un administrateur.
+\end{infobox}
+
+\begin{description}
+  \item[Gestion des transactions] CRUD complet des revenus et dépenses avec catégorisation et association à un budget.
+  \item[Gestion des budgets] Création avec plafond, période et type (individuel/partagé). Barre de progression visuelle.
+  \item[Système d'alertes] Déclenchement automatique à 80\,\% (vigilance) et 100\,\% (critique).
+  \item[Tableau de bord] KPIs, graphiques d'évolution et de répartition, filtres par période.
+  \item[Fonctionnalités collaboratives] Invitation par email, acceptation/refus, budgets partagés.
+  \item[Panneau d'administration] Validation des comptes, statistiques, gestion des utilisateurs.
+\end{description}
+
+\section{Besoins non fonctionnels}
+
+\begin{table}[H]
+  \centering
+  \begin{tabularx}{\textwidth}{lL}
+    \toprule
+    \textbf{Exigence} & \textbf{Description} \\
+    \midrule
+    Sécurité & Anti-injection SQL, XSS, CSRF~; bcrypt~; sessions sécurisées \\
+    Performance & Temps de réponse $<$ 2~s pour les opérations courantes \\
+    Maintenabilité & Architecture MVC 3 couches (Contrôleur / Service / DAO) \\
+    Utilisabilité & Interface responsive, dark mode, icônes, navigation claire \\
+    Portabilité & Environnement LAMP/WAMP standard sans dépendances lourdes \\
+    \bottomrule
+  \end{tabularx}
+  \caption{Besoins non fonctionnels}
+\end{table}
+
+\chapter{Conception et architecture}
+
+\section{Architecture globale}
+
+BudgetCollab adopte une \textbf{architecture 3 tiers} couplée au \textbf{MVC}~:
+
+\begin{itemize}
+  \item \textbf{Tier 1 — Frontend}~: Vues PHP, CSS, JavaScript, Lucide Icons.
+  \item \textbf{Tier 2 — Backend}~: Contrôleurs (routage), Services (logique métier), DAO (accès données).
+  \item \textbf{Tier 3 — Base de données}~: MySQL 8 avec InnoDB, clés étrangères.
+\end{itemize}
+
+Le \textbf{Front Controller} (\texttt{public/index.php}) est le point d'entrée unique. Il initialise la session, charge la configuration, et dispatche via le routeur.
+
+\begin{figure}[H]
+  \centering
+  \begin{tikzpicture}[
+    node distance=1.3cm,
+    box/.style={rectangle, draw, rounded corners, minimum width=3.8cm, minimum height=0.9cm, align=center, font=\small},
+    arrow/.style={->, thick, >=stealth}
+  ]
+    \node[box, fill=primaryblue!10, draw=primaryblue] (client) {Navigateur};
+    \node[box, fill=accentorange!10, draw=accentorange, below=of client] (front) {Front Controller};
+    \node[box, fill=accentorange!5, draw=accentorange!60, below=of front] (router) {Routeur};
+    \node[box, fill=accentgreen!10, draw=accentgreen, below left=1cm and 0.8cm of router] (ctrl) {Contrôleurs};
+    \node[box, fill=accentgreen!5, draw=accentgreen!60, below=of ctrl] (svc) {Services};
+    \node[box, fill=primaryblue!5, draw=primaryblue!60, below=of svc] (dao) {DAO};
+    \node[box, fill=accentred!10, draw=accentred, below=of dao] (db) {MySQL};
+    \node[box, fill=accentgreen!10, draw=accentgreen, below right=1cm and 0.8cm of router] (views) {Vues};
+    \draw[arrow] (client) -- (front); \draw[arrow] (front) -- (router);
+    \draw[arrow] (router) -- (ctrl); \draw[arrow] (ctrl) -- (svc);
+    \draw[arrow] (svc) -- (dao); \draw[arrow] (dao) -- (db);
+    \draw[arrow] (svc.east) -- ++(0.8,0) |- (views.east);
+    \draw[arrow] (views.west) -- ++(-0.8,0) |- (router.east);
+  \end{tikzpicture}
+  \caption{Architecture de BudgetCollab}
+\end{figure}
+
+\section{Base de données}
+
+\begin{table}[H]
+  \centering
+  \begin{tabularx}{\textwidth}{lL}
+    \toprule
+    \textbf{Table} & \textbf{Rôle} \\
+    \midrule
+    \texttt{users} & Utilisateurs (nom, email, mdp\_hash, rôle, statut) \\
+    \texttt{categories} & Catégories (nom, icône, est\_defaut, user\_id) \\
+    \texttt{budgets} & Budgets (nom, plafond, période, type) \\
+    \texttt{budget\_categories} & Plafonds par catégorie pour chaque budget \\
+    \texttt{budget\_members} & Membres (rôle, statut, token invitation) \\
+    \texttt{transactions} & Revenus et dépenses (montant, type, date) \\
+    \texttt{alertes} & Alertes (niveau, message, lue) \\
+    \bottomrule
+  \end{tabularx}
+  \caption{Tables de la base de données}
+\end{table}
+
+\section{Couches logicielles}
+
+\subsection{Core (noyau)}
+\texttt{Database} (Singleton PDO), \texttt{Session} (sessions sécurisées), \texttt{Router} (mapping URL), \texttt{Response} (JSON/redirections), \texttt{Validator} (validation entrées).
+
+\subsection{DAO}
+\texttt{UtilisateurDAO}, \texttt{TransactionDAO}, \texttt{BudgetDAO}, \texttt{CategorieDAO}, \texttt{AlerteDAO}, \texttt{MembreBudgetDAO}.
+
+\subsection{Services}
+\texttt{AuthService}, \texttt{TransactionService}, \texttt{BudgetService}, \texttt{DashboardService}, \texttt{AlerteService}, \texttt{AdminService}.
+
+\subsection{Contrôleurs}
+\texttt{AuthController}, \texttt{DashboardController}, \texttt{TransactionController}, \texttt{BudgetController}, \texttt{CategorieController}, \texttt{AlerteController}, \texttt{AdminController}.
+
+\section{Routage}
+
+\begin{longtable}{cll}
+  \toprule
+  \textbf{Méthode} & \textbf{Route} & \textbf{Action} \\
+  \midrule\endhead
+  \bottomrule\endfoot
+  GET & \texttt{/} & Dashboard \\
+  GET/POST & \texttt{/login} & Connexion \\
+  GET/POST & \texttt{/register} & Inscription \\
+  GET & \texttt{/logout} & Déconnexion \\
+  GET/POST & \texttt{/profil} & Profil utilisateur \\
+  POST & \texttt{/profil/password} & Changer mot de passe \\
+  GET & \texttt{/dashboard} & Tableau de bord \\
+  GET/POST & \texttt{/transactions} & Lister / Créer \\
+  POST & \texttt{/transactions/\{id\}/update} & Modifier \\
+  POST & \texttt{/transactions/\{id\}/delete} & Supprimer \\
+  GET/POST & \texttt{/budgets} & Lister / Créer \\
+  GET & \texttt{/budgets/\{id\}} & Détail budget \\
+  POST & \texttt{/budgets/\{id\}/inviter} & Inviter membre \\
+  GET & \texttt{/mes-invitations} & Voir invitations \\
+  POST & \texttt{/invitations/\{id\}/accepter} & Accepter \\
+  POST & \texttt{/invitations/\{id\}/refuser} & Refuser \\
+  GET & \texttt{/api/invitations/count} & Compteur invitations \\
+  GET/POST & \texttt{/categories} & Catégories \\
+  GET & \texttt{/api/categories} & API JSON catégories \\
+  GET & \texttt{/api/alertes} & Alertes non lues \\
+  GET & \texttt{/admin} & Panneau admin \\
+\end{longtable}
+
+\chapter{Technologies utilisées}
+
+\section{Langages}
+\textbf{PHP 8+}~: orienté objet, PDO, bcrypt. \textbf{MySQL 8}~: InnoDB, utf8mb4. \textbf{JavaScript ES6+}~: Fetch API, DOM. \textbf{HTML5 + CSS3}~: responsive, dark mode.
+
+\section{Bibliothèques}
+\textbf{Chart.js 4.4}~: graphiques (line, doughnut). \textbf{Lucide Icons}~: icônes SVG vectorielles.
+
+\section{Environnement}
+Développement sous \textbf{XAMPP} (Apache + MySQL + PHP). Gestion de versions avec \textbf{Git/GitHub}.
+
+\chapter{Fonctionnalités implémentées}
+
+\section{Authentification}
+Inscription avec validation (nom, email, mot de passe 8+ car.), hachage bcrypt (coût 12), statut \texttt{EN\_ATTENTE}. Connexion vérifie statut ACTIF, régénère la session. CSRF token sur tous les formulaires.
+
+\section{Tableau de bord}
+KPIs (revenus, dépenses, solde, alertes). Graphiques Chart.js~: courbes d'évolution, donut de répartition. Filtre par période (semaine/mois/année). Dernières transactions et budgets avec barres de progression.
+
+\section{Transactions}
+CRUD avec validation (type, montant positif, date, catégorie, budget). Recalcul automatique du solde du budget. Code couleur (vert revenu / rouge dépense).
+
+\begin{lstlisting}[style=phpstyle, caption=Ajout de transaction]
+public function ajouter(int $userId, array $dto): array {
+    $id = $this->txDao->save($userId, (int)$dto['budget_id'],
+        (int)$dto['categorie_id'], $dto['type'],
+        (float)$dto['montant'], $dto['date_op'],
+        $dto['description'] ?? '');
+    $taux = $this->budgetService->recalculer((int)$dto['budget_id']);
+    return ['ok' => true, 'transaction_id' => $id, 'taux' => $taux];
+}
+\end{lstlisting}
+
+\section{Budgets}
+Création avec nom, plafond, période (MENSUEL/HEBDOMADAIRE/PERSONNALISE), type (INDIVIDUEL/PARTAGE). Barre de progression colorée ($<$80\% vert, 80-99\% orange, $\ge$100\% rouge). Invitation de membres par email.
+
+\section{Catégories}
+10 catégories par défaut (Alimentation, Transport, Logement,\ldots). Création de catégories personnalisées. API JSON pour chargement dynamique.
+
+\section{Alertes}
+Déclenchement automatique~: $<$80\%~: aucune alerte~; $\ge$80\%~: AVERTISSEMENT~; $\ge$100\%~: CRITIQUE. Badge de notification, marquage comme lu.
+
+\section{Fonctionnalités collaboratives}
+Invitations depuis la création du budget ou depuis la page de détail. Badge avec compteur dans la sidebar et la topbar (via \texttt{GET /api/invitations/count}). Page \texttt{/mes-invitations} avec acceptation/refus. Budgets partagés visibles par tous les membres.
+
+\section{Administration}
+Validation des comptes en attente. Gestion des rôles et statuts. Statistiques globales (utilisateurs, transactions, budgets).
+
+\chapter{Sécurité}
+
+\begin{table}[H]
+  \centering
+  \begin{tabularx}{\textwidth}{lL}
+    \toprule
+    \textbf{Mesure} & \textbf{Implémentation} \\
+    \midrule
+    Injection SQL & 100\,\% PDO prepared statements avec paramètres typés \\
+    XSS & \texttt{htmlspecialchars(\$, ENT\_QUOTES)} sur toutes les sorties \\
+    CSRF & Token \texttt{bin2hex(random\_bytes(32))} vérifié sur chaque POST \\
+    Mots de passe & \texttt{password\_hash()} bcrypt coût 12, \texttt{password\_verify()} \\
+    Sessions & \texttt{httponly}, \texttt{samesite=Lax}, régénération après connexion \\
+    Validation & Classe Validator~: required, email, numeric, date, inArray, minLength \\
+    \bottomrule
+  \end{tabularx}
+  \caption{Mesures de sécurité}
+\end{table}
+
+\chapter{Limitations et améliorations}
+
+\begin{table}[H]
+  \centering
+  \begin{tabularx}{\textwidth}{cLL}
+    \toprule
+    \textbf{Prio} & \textbf{Amélioration} & \textbf{Description} \\
+    \midrule
+    Haute & Service email & PHPMailer pour notifications et invitations \\
+    Haute & Tests automatisés & PHPUnit pour services et DAO \\
+    Moyenne & Export PDF/CSV & Export des transactions \\
+    Moyenne & Pagination avancée & Filtres combinés et recherche \\
+    Moyenne & Objectifs financiers & Module d'épargne avec suivi \\
+    Basse & API REST & JWT pour application mobile \\
+    Basse & WebSockets & Notifications temps réel \\
+    Basse & 2FA & Authentification à deux facteurs \\
+    \bottomrule
+  \end{tabularx}
+  \caption{Améliorations futures}
+\end{table}
+
+\chapter{Conclusion}
+
+Le projet \textbf{BudgetCollab} a permis de concevoir et développer une application web complète de gestion collaborative de budget.
+
+\textbf{Apports techniques~:} Architecture MVC 3 tiers, Front Controller, DAO Pattern, PHP orienté objet sans framework.
+
+\textbf{Sécurité~:} Prepared statements, échappement XSS, CSRF, bcrypt, sessions sécurisées, validation entrées.
+
+\textbf{Valeur ajoutée~:} Invitations, budgets partagés, alertes automatiques, badges de notification.
+
+\textbf{Perspectives~:} Service email, export, tests, API REST, application mobile.
+
+\begin{successbox}{Bilan}
+  BudgetCollab est un projet abouti alliant rigueur architecturale, qualité de code, sécurité et expérience utilisateur, répondant à des besoins réels de gestion budgétaire collaborative.
+\end{successbox}
+
+\vfill
+\begin{center}
+  \rule{0.4\textwidth}{0.5pt}\\[0.5cm]
+  {\small\textit{Rapport généré le 29 mai 2026}}\\[0.2cm]
+  {\small\textcolor{textsecondary}{\texttt{https://github.com/Mooataz/budget\_app}}}
+\end{center}
+
+\end{document}

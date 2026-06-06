@@ -10,12 +10,16 @@ class Session {
             session_set_cookie_params([
                 'lifetime' => SESSION_LIFETIME,
                 'path'     => '/',
-                'secure'   => false,   // true en HTTPS
+                'secure'   => isset($_SERVER['HTTPS']),
                 'httponly' => true,
                 'samesite' => 'Lax',
             ]);
             session_start();
         }
+    }
+
+    public static function regenerate(): void {
+        session_regenerate_id(true);
     }
 
     public static function set(string $key, mixed $value): void {
@@ -86,6 +90,8 @@ class Session {
 
 class Router {
     private array $routes = [];
+    private array $csrfExempt = [];
+    private array $regexCache = [];
 
     public function get(string $path, callable $handler): void {
         $this->routes['GET'][$path] = $handler;
@@ -95,25 +101,44 @@ class Router {
         $this->routes['POST'][$path] = $handler;
     }
 
+    public function csrfExempt(string $path): void {
+        $this->csrfExempt[$path] = true;
+    }
+
+    private function getRegex(string $pattern): string {
+        if (!isset($this->regexCache[$pattern])) {
+            $this->regexCache[$pattern] = '#^' . preg_replace('/\{[^}]+\}/', '([^/]+)', $pattern) . '$#';
+        }
+        return $this->regexCache[$pattern];
+    }
+
     public function dispatch(): void {
         $method = $_SERVER['REQUEST_METHOD'];
         $uri    = strtok($_SERVER['REQUEST_URI'], '?');
-        // Enlever le préfixe du dossier public
         $base = dirname($_SERVER['SCRIPT_NAME']);
         if ($base !== '/') {
             $uri = str_replace($base, '', $uri);
         }
         $uri = '/' . trim($uri, '/');
 
+        // CSRF automatique sur toutes les routes POST sauf exempt
+        if ($method === 'POST' && !isset($this->csrfExempt[$uri])) {
+            $token = $_POST['csrf_token'] ?? '';
+            if (!Session::validateCsrf($token)) {
+                http_response_code(403);
+                header('Content-Type: application/json; charset=utf-8');
+                die(json_encode(['error' => 'Token CSRF invalide.']));
+            }
+        }
+
         if (isset($this->routes[$method][$uri])) {
             call_user_func($this->routes[$method][$uri]);
             return;
         }
 
-        // Routes dynamiques avec paramètre /{id}
         foreach ($this->routes[$method] ?? [] as $pattern => $handler) {
-            $regex = preg_replace('/\{[^}]+\}/', '([^/]+)', $pattern);
-            if (preg_match('#^' . $regex . '$#', $uri, $matches)) {
+            $regex = $this->getRegex($pattern);
+            if (preg_match($regex, $uri, $matches)) {
                 array_shift($matches);
                 call_user_func_array($handler, $matches);
                 return;
@@ -204,8 +229,7 @@ class Response {
     }
 
     public static function forbidden(): void {
-        http_response_code(403);
-        die(json_encode(['error' => 'Accès refusé.']));
+        self::json(['error' => 'Accès refusé.'], 403);
     }
 
     public static function requireAuth(): void {

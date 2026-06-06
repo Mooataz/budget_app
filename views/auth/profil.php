@@ -13,6 +13,7 @@ require_once VIEWS . '/partials/header.php';
   <div class="card" style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding:24px; margin-bottom:24px;">
     <h2 style="font-size:18px; margin-bottom:20px;">Informations Personnelles</h2>
     <form method="POST" action="<?= BASE_URL ?>/profil">
+      <input type="hidden" name="csrf_token" value="<?= Session::generateCsrf() ?>">
       <div class="field-row">
         <div class="field-group">
           <label>Prénom</label>
@@ -37,6 +38,7 @@ require_once VIEWS . '/partials/header.php';
   <div class="card" style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding:24px;">
     <h2 style="font-size:18px; margin-bottom:20px;">Sécurité</h2>
     <form method="POST" action="<?= BASE_URL ?>/profil/password">
+      <input type="hidden" name="csrf_token" value="<?= Session::generateCsrf() ?>">
       <div class="field-group">
         <label>Mot de passe actuel</label>
         <input type="password" name="ancien_mdp" required>

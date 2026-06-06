@@ -201,7 +201,8 @@ class TransactionController {
             Response::json(['ok' => false, 'message' => 'Accès refusé.'], 403);
         }
         $result = $this->svc->ajouter(Session::userId(), $_POST);
-        Response::json($result, 201);
+        $code = $result['ok'] ? 201 : 422;
+        Response::json($result, $code);
     }
 
     public function update(string $id): void {
@@ -302,6 +303,17 @@ class BudgetController {
         Response::requireAuth();
         $result = $this->svc->inviterMembre((int)$id, trim($_POST['email'] ?? ''), Session::userId());
         Response::json($result);
+    }
+
+    public function retirerMembre(string $id, string $userId): void {
+        Response::requireAuth();
+        $budgetId = (int)$id;
+        if (!$this->svc->hasAccess($budgetId, Session::userId())) {
+            Response::json(['ok' => false, 'message' => 'Accès refusé.'], 403);
+        }
+        $membreDao = new MembreBudgetDAO();
+        $membreDao->remove($budgetId, (int)$userId);
+        Response::json(['ok' => true]);
     }
 
     public function rejoindre(string $token): void {

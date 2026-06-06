@@ -324,6 +324,21 @@ class MembreBudgetDAO {
         return $st->fetchAll();
     }
 
+    public function findByBudgets(array $budgetIds): array {
+        if (empty($budgetIds)) return [];
+        $placeholders = implode(',', array_fill(0, count($budgetIds), '?'));
+        $st = $this->db->prepare(
+            "SELECT bm.*,u.nom,u.prenom,u.email FROM budget_members bm
+             JOIN users u ON u.id=bm.user_id WHERE bm.budget_id IN ($placeholders)"
+        );
+        $st->execute($budgetIds);
+        $result = [];
+        foreach ($st->fetchAll() as $row) {
+            $result[(int)$row['budget_id']][] = $row;
+        }
+        return $result;
+    }
+
     public function findMembre(int $budgetId, int $userId): ?array {
         $st = $this->db->prepare('SELECT * FROM budget_members WHERE budget_id=? AND user_id=? LIMIT 1');
         $st->execute([$budgetId, $userId]);

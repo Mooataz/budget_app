@@ -1,12 +1,13 @@
 <?php
 $pageTitle = 'Tableau de bord — BudgetCollab';
+$needChart = true;
 require_once VIEWS . '/partials/header.php';
 ?>
 
 <div class="page-header">
   <div>
     <h1 class="page-title">Tableau de bord</h1>
-    <p class="page-sub">Bonjour, <?= htmlspecialchars(Session::get('user_nom')) ?> 👋</p>
+    <p class="page-sub">Bonjour, <?= htmlspecialchars(Session::get('user_nom')) ?> </p>
   </div>
   <div class="header-actions">
     <form method="GET" action="<?= BASE_URL ?>/dashboard" class="period-form" id="periodForm">
@@ -28,21 +29,21 @@ require_once VIEWS . '/partials/header.php';
     <div class="kpi-icon"><i data-lucide="trending-up"></i></div>
     <div class="kpi-body">
       <span class="kpi-label">Revenus</span>
-      <span class="kpi-value"><?= number_format($data['total_revenus'],2,',',' ') ?> DA</span>
+      <span class="kpi-value"><?= number_format($data['total_revenus'],2,',',' ') ?> DT</span>
     </div>
   </div>
   <div class="kpi-card kpi-red">
     <div class="kpi-icon"><i data-lucide="trending-down"></i></div>
     <div class="kpi-body">
       <span class="kpi-label">Dépenses</span>
-      <span class="kpi-value"><?= number_format($data['total_depenses'],2,',',' ') ?> DA</span>
+      <span class="kpi-value"><?= number_format($data['total_depenses'],2,',',' ') ?> DT</span>
     </div>
   </div>
   <div class="kpi-card <?= $data['solde'] >= 0 ? 'kpi-blue' : 'kpi-orange' ?>">
     <div class="kpi-icon"><i data-lucide="wallet"></i></div>
     <div class="kpi-body">
       <span class="kpi-label">Solde</span>
-      <span class="kpi-value"><?= number_format($data['solde'],2,',',' ') ?> DA</span>
+      <span class="kpi-value"><?= number_format($data['solde'],2,',',' ') ?> DT</span>
     </div>
   </div>
   <div class="kpi-card kpi-purple">
@@ -99,7 +100,7 @@ require_once VIEWS . '/partials/header.php';
            style="width:<?= min($b['taux'],100) ?>%"></div>
     </div>
     <div class="budget-card-footer">
-      <span><?= number_format($b['montant_consomme'],0,',',' ') ?> / <?= number_format($b['plafond_global'],0,',',' ') ?> DA</span>
+      <span><?= number_format($b['montant_consomme'],0,',',' ') ?> / <?= number_format($b['plafond_global'],0,',',' ') ?> DT</span>
       <span class="taux-badge taux-<?= $b['taux']>=100?'red':($b['taux']>=80?'orange':'green') ?>"><?= $b['taux'] ?>%</span>
     </div>
   </a>
@@ -124,7 +125,7 @@ require_once VIEWS . '/partials/header.php';
         <td><span class="cat-pill"><?= htmlspecialchars($tx['categorie_nom']) ?></span></td>
         <td><?= htmlspecialchars($tx['budget_nom']) ?></td>
         <td class="tx-amount <?= $tx['type']==='REVENU'?'tx-pos':'tx-neg' ?>">
-          <?= $tx['type']==='REVENU'?'+':'-' ?><?= number_format($tx['montant'],2,',',' ') ?> DA
+          <?= $tx['type']==='REVENU'?'+':'-' ?><?= number_format($tx['montant'],2,',',' ') ?> DT
         </td>
       </tr>
     <?php endforeach; ?>
